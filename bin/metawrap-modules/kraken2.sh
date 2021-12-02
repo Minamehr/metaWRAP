@@ -132,9 +132,9 @@ for num in "$@"; do
 		if [ ! -s $reads_1 ]; then error "$reads_1 doesnt exist. Exiting..."; fi
 
 		if [ "$preload" = true ]; then
-			CMD="kraken2 --use-names --db ${KRAKEN2_DB} --paired --threads $threads --output ${out}/${sample}.krak2 $reads_1 $reads_2"
+			CMD="kraken2 --use-names --db ${KRAKEN2_DB} --paired --threads $threads --report ${out}/${sample}.kreport --output ${out}/${sample}.krak2 $reads_1 $reads_2"
 		else
-			CMD="kraken2 --use-names --db ${KRAKEN2_DB} --paired --threads $threads --output ${out}/${sample}.krak2 --memory-mapping $reads_1 $reads_2"
+			CMD="kraken2 --use-names --db ${KRAKEN2_DB} --paired --threads $threads --report ${out}/${sample}.kreport --output ${out}/${sample}.krak2 --memory-mapping $reads_1 $reads_2"
 		fi
 		
 		if [ -s ${out}/${sample}.krak2 ]; then
@@ -156,9 +156,9 @@ for num in "$@"; do
 		comm "Now processing $num with $threads threads"
 		
 		if [ "$preload" = true ]; then
-			CMD="kraken2 --use-names --db ${KRAKEN2_DB} --threads $threads --output ${out}/${sample}.krak2 $num"
+			CMD="kraken2 --use-names --db ${KRAKEN2_DB} --threads $threads --report ${out}/${sample}.kreport --output ${out}/${sample}.krak2 $num"
 		else
-			CMD="kraken2 --use-names --db ${KRAKEN2_DB} --threads $threads --output ${out}/${sample}.krak2 --memory-mapping $num"
+			CMD="kraken2 --use-names --db ${KRAKEN2_DB} --threads $threads --report ${out}/${sample}.kreport --output ${out}/${sample}.krak2 --memory-mapping $num"
 		fi
 		
 		if [ -s ${out}/${sample}.krak2 ]; then
