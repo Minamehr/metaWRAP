@@ -314,9 +314,9 @@ if [ "$run_checkm" == "true" ] && [[ ! -s work_files/binsM.stats ]]; then
 elif [ "$run_checkm" == "true" ] && [[ -s work_files/binsM.stats ]]; then
 	comm "Previous bin refinement files found. If this was not intended, please re-run with a clear output directory. Skipping CheckM runs..."
 	rm -r bins*
-	cp -r work_files/binsA* ./
-	cp -r work_files/binsB* ./
 	cp -r work_files/binsC* ./
+	cp -r work_files/binsB* ./
+	cp -r work_files/binsA* ./
 else
 	comm "Skipping CheckM. Warning: bin consolidation will not be possible."
 fi

@@ -12,7 +12,7 @@
 
 help_message () {
 	echo ""
-	echo "Usage: metaWRAP reassemble_bins [options] -o output_dir -b bin_folder -1 reads_1.fastq -2 reads_2.fastq"
+	echo "Usage: metaWRAP reassemble_bins [options] -o output_dir -b bin_folder -1 reads_1.fastq.gz -2 reads_2.fastq.gz"
 	echo ""
 	echo "Options:"
 	echo ""
@@ -156,7 +156,7 @@ if [[ ! -s ${out}/binned_assembly/assembly.fa.amb ]]; then
 	if [ -d ${out}/reads_for_reassembly ]; then rm -r ${out}/reads_for_reassembly; fi
 	mkdir ${out}/reads_for_reassembly
 
-	comm "Aligning all reads back to entire assembly and splitting reads into individual fastq files based on their bin membership"
+	comm "Aligning all reads back to entire assembly and splitting reads into individual fastq.gz files based on their bin membership"
 	bwa mem -t $threads ${out}/binned_assembly/assembly.fa $f_reads $r_reads \
 	 | ${SOFT}/filter_reads_for_bin_reassembly.py ${out}/original_bins ${out}/reads_for_reassembly $strict_max $permissive_max
 	if [[ $? -ne 0 ]]; then error "Something went wrong with pulling out reads for reassembly..."; fi

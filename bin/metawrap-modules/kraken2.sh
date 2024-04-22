@@ -2,7 +2,7 @@
 
 ##############################################################################################################################################################
 #
-# This script is meant to be run on paired end reads (with extensions *_1.fastq and *_2.fastq) or assembled contigs (*.fa or *.fasta).
+# This script is meant to be run on paired end reads (with extensions *_1.fastq.gz and *_2.fastq.gz) or assembled contigs (*.fa or *.fasta).
 # The script runs KRAKEN on the sequences, then translates them to taxonomy form with a custom script. Then in-house scripts are used to 
 # parse out the taxonomy into the format for KRONA-TOOLS, colapse the file to save memory, and finally produce a prety kronagram with all the files.
 #
@@ -17,7 +17,7 @@
 help_message () {
 	echo ""
 	echo "Run on any number of fasta assembly files and/or or paired-end reads."
-	echo "Usage: metaWRAP kraken2 [options] -o output_dir assembly.fasta reads_1.fastq reads_2.fastq ..."
+	echo "Usage: metaWRAP kraken2 [options] -o output_dir assembly.fasta reads_1.fastq.gz reads_2.fastq.gz ..."
 	echo "Options:"
 	echo "" 
 	echo "	-o STR          output directory"
@@ -26,7 +26,7 @@ help_message () {
 	echo "	--no-preload	do not pre-load the kraken2 DB into memory (slower, but lower memory requirement)"
 	echo ""
 	echo "	Note: you may pass any number of sequence files with the following extensions:"
-	echo "	*.fa *.fasta (assumed to be assembly files) or *_1.fastq and *_2.fastq (assumed to be paired)"
+	echo "	*.fa *.fasta (assumed to be assembly files) or *_1.fastq.gz and *_2.fastq.gz (assumed to be paired)"
 	echo "";}
 
 comm () { ${SOFT}/print_comment.py "$1" "-"; }
@@ -107,9 +107,9 @@ fi
 # If there are several pairs of reads passed, they are processed sepperately
 for num in "$@"; do
 	#process fastq files
-	if [[ $num == *"_1.fastq" ]]; then
+	if [[ $num == *"_1.fastq.gz" ]]; then
 		reads_1=$num
-		reads_2=${num%_*}_2.fastq
+		reads_2=${num%_*}_2.fastq.gz
 		if [ "$reads_2" = "false" ]; then error "$reads_2 does not exist. Exiting..."; fi
 		
 		tmp=${reads_1##*/}
@@ -122,9 +122,9 @@ for num in "$@"; do
 			paste $reads_1 $reads_2 | \
 			 awk '{ printf("%s",$0); n++; if(n%4==0) { printf("\n");} else { printf("\t\t");} }' | \
 			 shuf | head -n $depth | sed 's/\t\t/\n/g' | \
-			 awk -F"\t" '{print $1 > "'"${out}/tmp_1.fastq"'"; print $2 > "'"${out}/tmp_2.fastq"'"}'
-			reads_1=${out}/tmp_1.fastq
-			reads_2=${out}/tmp_2.fastq
+			 awk -F"\t" '{print $1 > "'"${out}/tmp_1.fastq.gz"'"; print $2 > "'"${out}/tmp_2.fastq.gz"'"}'
+			reads_1=${out}/tmp_1.fastq.gz
+			reads_2=${out}/tmp_2.fastq.gz
 			comm "Subsampling done. Starting KRAKEN..."
 			if [ ! -s $reads_1 ]; then error "something went wrong with subsampling sequences. Exiting..."; fi
 		fi
@@ -146,7 +146,7 @@ for num in "$@"; do
 	
 		if [[ $? -ne 0 ]] || [[ ! -s ${out}/${sample}.krak2 ]]; then error "Something went wrong with running kraken2 on $reads_1 and $reads_2 . Exiting..."; fi
 			
-		if [ ! "$depth" = "all" ]; then rm ${out}/tmp_1.fastq ${out}/tmp_2.fastq; fi
+		if [ ! "$depth" = "all" ]; then rm ${out}/tmp_1.fastq.gz ${out}/tmp_2.fastq.gz; fi
 	fi
 
 	#process fasta files
@@ -174,7 +174,7 @@ done
 
 # check if any files were processed
 if [[ $( ls $out | grep ".krak" | wc -l ) -eq 0 ]]; then 
-	comm "No fasta or fastq files detected! (must be in .fastq .fa .fastq or .fq format)"
+	comm "No fasta or fastq files detected! (must be in .fasta .fa .fastq.gz or .fq format)"
 	help_message; exit 1
 fi
 

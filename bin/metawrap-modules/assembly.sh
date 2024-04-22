@@ -16,7 +16,7 @@
 
 help_message () {
 	echo ""
-	echo "Usage: metaWRAP assembly [options] -1 reads_1.fastq -2 reads_2.fastq -o output_dir"
+	echo "Usage: metaWRAP assembly [options] -1 reads_1.fastq.gz -2 reads_2.fastq.gz -o output_dir"
 	echo "Options:"
 	echo ""
 	echo "	-1 STR          forward fastq reads"
@@ -138,10 +138,10 @@ if [ "$megahit_assemble" = true ] && [ "$metaspades_assemble" = true ]; then
 	
 	#sort out and store reads that dont map back to the assembly:
 	bwa mem -t $threads ${out}/metaspades/long_scaffolds.fasta $reads_1 $reads_2 | grep -v NM:i: > ${out}/unused_by_metaspades.sam
-	${SOFT}/sam_to_fastq.py ${out}/unused_by_metaspades.sam > ${out}/unused_by_metaspades.fastq
+	${SOFT}/sam_to_fastq.py ${out}/unused_by_metaspades.sam > ${out}/unused_by_metaspades.fastq.gz
 	rm ${out}/unused_by_metaspades.sam
 	
-	if [[ ! -s ${out}/unused_by_metaspades.fastq ]]; then error "Something went wrong with pulling out unassembled reads. Exiting."; fi
+	if [[ ! -s ${out}/unused_by_metaspades.fastq.gz ]]; then error "Something went wrong with pulling out unassembled reads. Exiting."; fi
 fi
 
 if [ "$megahit_assemble" = true ]; then
@@ -153,14 +153,14 @@ if [ "$megahit_assemble" = true ]; then
 	#rm -r ${out}/megahit
 	mkdir ${out}/megahit.tmp
 	if [ "$metaspades_assemble" = true ]; then
-		comm "assembling ${out}/unused_by_metaspades.fastq with megahit"
+		comm "assembling ${out}/unused_by_metaspades.fastq.gz with megahit"
 		megahit\
-		 -r ${out}/unused_by_metaspades.fastq\
+		 -r ${out}/unused_by_metaspades.fastq.gz\
 		 -o ${out}/megahit\
 		 -t $threads\
 		 -m ${mem}000000000\
 		 --tmp-dir ${out}/megahit.tmp
-		mv ${out}/unused_by_metaspades.fastq ${out}/metaspades/
+		mv ${out}/unused_by_metaspades.fastq.gz ${out}/metaspades/
 	else
 		comm "assembling $reads_1 and $reads_2 with megahit"
 		megahit\

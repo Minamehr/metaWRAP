@@ -18,7 +18,7 @@
 
 help_message () {
 	echo ""
-	echo "Usage: metaWRAP binning [options] -a assembly.fa -o output_dir readsA_1.fastq readsA_2.fastq ... [readsX_1.fastq readsX_2.fastq]"
+	echo "Usage: metaWRAP binning [options] -a assembly.fa -o output_dir readsA_1.fastq.gz readsA_2.fastq.gz ... [readsX_1.fastq.gz readsX_2.fastq.gz]"
 	echo "Note1: Make sure to provide all your separately replicate read files, not the joined file."
 	echo "Note2: You may provide single end or interleaved reads as well with the use of the correct option"
 	echo "Note3: If the output already has the .bam alignments files from previous runs, the module will skip re-aligning the reads"
@@ -38,7 +38,7 @@ help_message () {
 	echo ""
 	echo "	--universal	use universal marker genes instead of bacterial markers in MaxBin2 (improves Archaea binning)"
 	echo "	--run-checkm	immediately run CheckM on the bin results (requires 40GB+ of memory)"
-	echo "	--single-end	non-paired reads mode (provide *.fastq files)"
+	echo "	--single-end	non-paired reads mode (provide *.fastq.gz files)"
 	echo "	--interleaved	the input read files contain interleaved paired-end reads"
 	echo "";}
 
@@ -136,29 +136,29 @@ if [ $read_type = paired ]; then
 	# check for at least one pair of read fastq files:
 	F="no"; R="no"
 	for num in "$@"; do
-		if [[ $num == *"_1.fastq" ]]; then F="yes"; fi
-		if [[ $num == *"_2.fastq" ]]; then R="yes"; fi
+		if [[ $num == *"_1.fastq.gz" ]]; then F="yes"; fi
+		if [[ $num == *"_2.fastq.gz" ]]; then R="yes"; fi
 	done
 	if [ $F = "no" ] || [ $R = "no" ]; then
-		comm "Unable to find proper fastq read pair in the format *_1.fastq and *_2.fastq"
+		comm "Unable to find proper fastq read pair in the format *_1.fastq.gz and *_2.fastq.gz"
 		help_message; exit 1
 	fi
 else
 	# check for at least one fastq read
 	F="no"
 	for num in "$@"; do
-		if [[ $num == *".fastq" ]]; then F="yes"; fi
+		if [[ $num == *".fastq.gz" ]]; then F="yes"; fi
 	done
 	if [ $F = "no" ]; then
-		comm "Unable to find read files in format *.fastq (for single-end or interleaved reads)"
+		comm "Unable to find read files in format *.fastq.gz (for single-end or interleaved reads)"
 		help_message; exit 1
 	fi
 fi
 
 if [ $read_type = paired ]; then
 	#determine number of fastq read files provided:
-	num_of_F_read_files=$(for I in "$@"; do echo $I | grep _1.fastq; done | wc -l)
-	num_of_R_read_files=$(for I in "$@"; do echo $I | grep _2.fastq; done | wc -l)
+	num_of_F_read_files=$(for I in "$@"; do echo $I | grep _1.fastq.gz; done | wc -l)
+	num_of_R_read_files=$(for I in "$@"; do echo $I | grep _2.fastq.gz; done | wc -l)
 
 	comm "$num_of_F_read_files forward and $num_of_R_read_files reverse read files detected"
 	if [ ! $num_of_F_read_files == $num_of_R_read_files ]; then error "Number of F and R reads must be the same!"; fi
@@ -220,9 +220,9 @@ fi
 for num in "$@"; do
 	# paired end reads
 	if [ $read_type = paired ]; then
-		if [[ $num == *"_1.fastq"* ]]; then 
+		if [[ $num == *"_1.fastq.gz"* ]]; then 
 			reads_1=$num
-			reads_2=${num%_*}_2.fastq
+			reads_2=${num%_*}_2.fastq.gz
 			if [ ! -s $reads_1 ]; then error "$reads_1 does not exist. Exiting..."; fi
 			if [ ! -s $reads_2 ]; then error "$reads_2 does not exist. Exiting..."; fi
 	
@@ -245,7 +245,7 @@ for num in "$@"; do
 
 	# single end or interleaved reads
 	else
-		if [[ $num == *".fastq"* ]]; then
+		if [[ $num == *".fastq.gz"* ]]; then
 			reads=$num
 			if [ ! -s $reads ]; then error "$reads does not exist. Exiting..."; fi
 			tmp=${reads##*/}
